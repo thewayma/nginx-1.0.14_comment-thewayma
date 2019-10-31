@@ -1,0 +1,29 @@
+upstream  fastcgi_backend {
+        server 127.0.0.1:9015  max_fails=0;
+        keepalive 8;
+} 
+server {
+         listen       80 ;
+         server_name  api.v5.weibo.cn api.weibo.cn;
+         root /data1/v5.weibo.cn/code/public/;
+ 
+         access_log  "pipe:/usr/bin/php /data1/v5.weibo.cn/etc/StripGsid_v5.php wb-www-access-api.v5.weibo.cn /data1/v5.weibo.cn/logs/nginx/access/" main;
+         error_log   /data1/v5.weibo.cn/logs/nginx/error/v5.weibo.cn-error_log;
+
+         uniqueid_prefix 100;         
+
+	 rewrite  "^(.*)" /index.php/$1 last;
+         location  / {
+             keepalive_timeout  0;
+             set $script_uri "";
+             if ( $request_uri ~* "([^?]*)?" ) {
+                     set $script_uri $1;
+             }
+             fastcgi_pass   fastcgi_backend;
+             fastcgi_param  SCRIPT_URL         $script_uri;
+             fastcgi_param  SCRIPT_FILENAME     $document_root$fastcgi_script_name;
+             fastcgi_param  REQUEST_ID          $request_uid;
+             fastcgi_keep_conn on;
+             include fastcgi_params;
+         }
+}
