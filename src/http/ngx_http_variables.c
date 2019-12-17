@@ -1911,13 +1911,13 @@ ngx_http_variables_add_core_vars(ngx_conf_t *cf)
     cmcf->variables_keys->pool = cf->pool;
     cmcf->variables_keys->temp_pool = cf->pool;
 
-    if (ngx_hash_keys_array_init(cmcf->variables_keys, NGX_HASH_SMALL)
+    if (ngx_hash_keys_array_init(cmcf->variables_keys, NGX_HASH_SMALL)          //!< 1. servername 哈希表初始化: 完全匹配, 前置通配符, 后置通配符
         != NGX_OK)
     {
         return NGX_ERROR;
     }
 
-    for (v = ngx_http_core_variables; v->name.len; v++) {
+    for (v = ngx_http_core_variables; v->name.len; v++) {                       //!< 2. 在哈希表中 添加 内置动态变量
         rc = ngx_hash_add_key(cmcf->variables_keys, &v->name, v,
                               NGX_HASH_READONLY_KEY);
 
@@ -1955,7 +1955,7 @@ ngx_http_variables_init_vars(ngx_conf_t *cf)
 
     for (i = 0; i < cmcf->variables.nelts; i++) {
 
-        for (n = 0; n < cmcf->variables_keys->keys.nelts; n++) {
+        for (n = 0; n < cmcf->variables_keys->keys.nelts; n++) {    //!< 动态变量与内置变量重复时, 以ngx_http_core_variables内置变量为准
 
             av = key[n].value;  //!< ngx_http_core_preconfiguration->ngx_http_variables_add_core_vars 根据ngx_http_core_variables[] 初始化 内置动态变量
 
@@ -1970,12 +1970,15 @@ ngx_http_variables_init_vars(ngx_conf_t *cf)
                 av->flags |= NGX_HTTP_VAR_INDEXED;
                 v[i].flags = av->flags;
 
-                av->index = i;
+                av->index = i;                          //!< 某个变量在r->variabels或者cmcf->variabels中数组中的下标
 
                 goto next;
             }
         }
-
+        
+        /**
+         * 初始化内置动态变量 get方法
+         */
         if (ngx_strncmp(v[i].name.data, "http_", 5) == 0) {
             v[i].get_handler = ngx_http_variable_unknown_header_in;
             v[i].data = (uintptr_t) &v[i].name;

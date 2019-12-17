@@ -1660,7 +1660,7 @@ ngx_http_core_find_static_location(ngx_http_request_t *r, ngx_http_location_tree
                  * 因为前缀已经匹配到了，所以这里先暂且把loc_conf作为target，但是不保证后面的tree节点的子节点是否有和uri完全匹配或者更多前缀匹配的
                  * 例如如果uri是/abc,当前node节点是/a,虽然匹配到了location /a,先把/a的location配置作为target，但是有可能在/a的tree节点有/abc的location，所以需要递归tree节点看一下
                  */
-                r->loc_conf = node->inclusive->loc_conf;
+                r->loc_conf = node->inclusive->loc_conf;    //!< ################ 命中 前缀匹配 #########################
 
                 /**
                  * 设置成again表示需要递归嵌套location

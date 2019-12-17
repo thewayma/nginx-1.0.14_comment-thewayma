@@ -768,7 +768,7 @@ static ngx_int_t ngx_http_init_phase_handlers(ngx_conf_t *cf, ngx_http_core_main
         n += cmcf->phases[i].handlers.nelts;
     }
 
-    /** 为每一个方法(所有阶段中注册的)分配一个ngx_http_phase_handler_t结构体, 阶段引擎会用到这个结构体来执行相应阶段的方法
+    /** 为每一个方法(所有阶段中注册的)分配一个ngx_http_phase_handler_t结构体, 阶段引擎会用到这个结构体来执行相应阶段的方法 --- 将一个二维(cmcf->phases[NGX_HTTP_LOG_PHASE])降维成一维(cmcf->phase_engine.handlers)
      * 如果use_rewrite、use_access、cmcf->try_files这三个都有值,那么最终n的值会比阶段中注册的所有方法个数大4,
      * 从实际分配的空间来看,会比实际多出四个ngx_http_phase_handler_t和一个指针的空间大小。
      *
